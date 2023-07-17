@@ -1,13 +1,26 @@
+from drone.drone_dynamics import DroneDynamics
+from drone.screen import Screen
+import constants
+
 from pygame import Surface, transform
 import pygame
 import numpy as np
-from drone_dynamics import DroneDynamics
-from screen import Screen
-import constants
+
+"""
+Renderer that draws a drone, according
+to current state, to the pygame screen.
+"""
 
 
 class BaseEntity:
     def __init__(self, x: int, y: int):
+        """
+        Creates a pygame entity with some
+        initial position.
+
+        :param x: X coordinate for position.
+        :param y: Y coordiante for position.
+        """
         self.x = x
         self.y = y
 
@@ -23,6 +36,17 @@ class Rectangle(BaseEntity):
         screen: Screen,
         color: tuple = (0, 255, 0),
     ):
+        """
+        Creates a new rectangle object (which can be rotated,
+        yea --- pygame doesn't let you do that).
+
+        :param x: The rectangle's center x coordinate.
+        :param y: The rectangle's center y coordinate.
+        :param width: The rectangle's width.
+        :param height: The rectangle's height.
+        :param screen: The screen where the rectangle should be rendered.
+        :param color: The rectangle's color.
+        """
         super().__init__(x, y)
         self.width = width
         self.height = height
@@ -37,6 +61,12 @@ class Rectangle(BaseEntity):
         self.rect = self.surface.get_rect()
 
     def display(self, angle=None):
+        """
+        Renders the rectangle on the screen.
+
+        :param angle: The angle (relative to positive x) to
+        render the rectangle at.
+        """
         # updating values
         self.surface.fill(
             self.color
@@ -57,8 +87,14 @@ class Rectangle(BaseEntity):
 
 class DroneRenderer:
     def __init__(self, drone: DroneDynamics, screen: Screen):
+        """
+        Creates a new drone renderer that renders the supplied
+        drone object to the supplied screen.
+
+        :param drone: The drone to render.
+        :param screen: The screen to render the drone on.
+        """
         self.drone = drone
-        # Consider passing some of these in
         self.radius = 20
         self.color = (255, 255, 255)
         self.center_line_length = self.radius * 2
@@ -73,11 +109,17 @@ class DroneRenderer:
         self.screen = screen
 
     def render(self):
+        """
+        Draws the drone on the screen.
+        """
         self.render_body()
         self.render_left()
         self.render_right()
 
     def render_body(self):
+        """
+        Renders the drone body.
+        """
         drone_x, drone_y = self.drone.position[0], self.drone.position[1]
         drone_center = (drone_x, drone_y)
 
@@ -103,6 +145,17 @@ class DroneRenderer:
     def render_thruster(
         self, center_x, center_y, angle, width, height, power_ratio, color
     ):
+        """
+        Generic method to render a single drone thruster.
+
+        :param center_x: X coordinate of the thruster's center.
+        :param center_y: Y coordinate of the thruster's center.
+        :param angle: The thruster's angle relative to positive y.
+        :param width: The thruster's width.
+        :param height: The thruster's height.
+        :param power_ratio: The ratio of power applied by the thruster.
+        :param color: The thruster's color.
+        """
         power_x, power_y = self.screen.to_pygame(
             (
                 center_x
@@ -127,7 +180,9 @@ class DroneRenderer:
         thruster_power.display(self.drone.angle + angle)
 
     def render_left(self):
-        # Can pass this in
+        """
+        Renders the left thruster.
+        """
         drone_x, drone_y = self.drone.position[0], self.drone.position[1]
 
         left_thruster_x = drone_x - self.thruster_offset * np.cos(self.drone.angle)
@@ -143,7 +198,9 @@ class DroneRenderer:
         )
 
     def render_right(self):
-        # Can pass this in
+        """
+        Renders the right thruster.
+        """
         drone_x, drone_y = self.drone.position[0], self.drone.position[1]
 
         right_thruster_x = drone_x + self.thruster_offset * np.cos(self.drone.angle)
@@ -157,48 +214,3 @@ class DroneRenderer:
             self.drone.right.power_ratio,
             (255, 0, 0),
         )
-
-
-if __name__ == "__main__":
-    pygame.init()
-    screen = Screen()
-    clock = pygame.time.Clock()
-
-    drone = DroneDynamics()
-    drone.position = np.array([screen.width / 2, screen.height / 2])
-    drone.angle = 0
-    drone_renderer = DroneRenderer(drone, screen)
-
-    i = 0
-    action = [-1, 1, -1, 1]
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        if i % 100 == 0:
-            action[1] *= -1
-            action[3] *= -1
-        i += 1
-        drone.set(action)
-
-        # Get the state of all keyboard keys
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
-            drone.set([1, 0, 1, 0])
-        if keys[pygame.K_LEFT]:
-            drone.set([1, 0, -1, 0])
-        if keys[pygame.K_RIGHT]:
-            drone.set([-1, 0, 1, 0])
-
-        screen().fill((0, 0, 0))
-
-        drone.update(0.01)
-
-        drone_renderer.render()
-
-        pygame.display.flip()
-        clock.tick(60)
-
-    pygame.quit()
