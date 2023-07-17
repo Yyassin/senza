@@ -1,6 +1,6 @@
 # Senza
 
-> An 2D environment for training control policies for a quadrotor drone (technically a planar birotor). Rigth now, only Soft-Actor-Critic is implemented but I may revisit later (there are some failed PID and TD3 attempts :)).
+> An 2D environment for training control policies for a quadrotor drone (technically a planar birotor). Right now, only Soft-Actor-Critic (SAC) is implemented but I may revisit later (there are some failed PID and TD3 attempts :)).
 
 <span title="sac-agent-demo">
  <p align="center">
