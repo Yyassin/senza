@@ -28,7 +28,8 @@ The drone environment runs on Pygame and can be found in `drone/DroneEnv.py`. I 
 - [ ] Prioritized Replay
 - [ ] LA3P
 - [ ] Obstacles and LiDaR simulation for POMDP (using an LSTM based network)
-- [ ] State estimation 
+- [ ] State estimation
+- [ ] 3D env rendered in 3JS.
 
 
 ## References
